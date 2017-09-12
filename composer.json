@@ -1,7 +1,7 @@
 {
     "name": "liquiddesign/php-sql-parser",
     "type": "library",
-    "description": "SQL parsing tools for PHP, fork from soundintheory",
+    "description": "SQL parsing tools for PHP, fork of soundintheory/php-sql-parser",
     "license": "BSD-2-Clause",
     "require": {
         "php": ">=5.3.3"
