@@ -1,14 +1,14 @@
 PHP SQL Parser
 --------------
 
-A fork of https://code.google.com/p/php-sql-parser/
+A fork of https://github.com/soundintheory/php-sql-parser
 
 A Parser for mysql-ish queries that can represent a query as an array.
 
 # Goals:
 	1. A PSR-0 Compatible implementation
 	2. Improvements
-	3. Profit!!!
+	3. Many fixes form MySQL
 
 ## Usage
 

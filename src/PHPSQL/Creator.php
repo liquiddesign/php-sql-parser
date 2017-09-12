@@ -77,6 +77,9 @@ class Creator {
         if (isset($parsed['GROUP'])) {
             $sql .= " " . $this->processGROUP($parsed['GROUP']);
         }
+        if (isset($parsed['HAVING'])) {
+            $sql .= " " . $this->processHAVING($parsed['HAVING']);
+        }
         if (isset($parsed['ORDER'])) {
             $sql .= " " . $this->processORDER($parsed['ORDER']);
         }
@@ -84,6 +87,26 @@ class Creator {
             $sql .= " " . $this->processLIMIT($parsed['LIMIT']);
         }
         return $sql;
+    }
+
+    protected function processHAVING($parsed)
+    {
+        $sql = "";
+        foreach ($parsed as $k => $v) {
+            $len = strlen($sql);
+            $sql .= $this->processOperator($v);
+            $sql .= $this->processConstant($v);
+            $sql .= $this->processColRef($v);
+            $sql .= $this->processFunction($v);
+
+            if ($len == strlen($sql)) {
+                throw new \PHPSQL\Exception\UnableToCreateSQL('HAVING', $k, $v, 'expr_type');
+            }
+
+            $sql .= " ";
+        }
+        $sql = substr($sql, 0, -1);
+        return "HAVING " . $sql;
     }
 
     protected function processInsertStatement($parsed) {
@@ -345,22 +368,29 @@ class Creator {
         return $sql;
     }
 
-    protected function processWhereBracketExpression($parsed) {
+    protected function processWhereBracketExpression($parsed)
+    {
         if ($parsed['expr_type'] !== \PHPSQL\Expression\Type::BRACKET_EXPRESSION) {
             return "";
         }
         $sql = "";
+        if ($parsed['sub_tree'] === FALSE) return "(" . $parsed['base_expr'] . ")"; // @ADDED
         foreach ($parsed['sub_tree'] as $k => $v) {
             $len = strlen($sql);
+
             $sql .= $this->processColRef($v);
             $sql .= $this->processConstant($v);
             $sql .= $this->processOperator($v);
             $sql .= $this->processInList($v);
             $sql .= $this->processFunction($v);
+            $sql .= $this->processReserved($v);
             $sql .= $this->processWhereExpression($v);
             $sql .= $this->processWhereBracketExpression($v);
+            $sql .= $this->processMatchArguments($v); // @ADDED
 
             if ($len == strlen($sql)) {
+
+
                 throw new \PHPSQL\Exception\UnableToCreateSQL('WHERE expression subtree', $k, $v, 'expr_type');
             }
 
@@ -392,14 +422,19 @@ class Creator {
         return $value;
     }
 
-    protected function processFunction($parsed) {
+    protected function processFunction($parsed)
+    {
         if (($parsed['expr_type'] !== \PHPSQL\Expression\Type::AGGREGATE_FUNCTION)
-                && ($parsed['expr_type'] !== \PHPSQL\Expression\Type::SIMPLE_FUNCTION)) {
+            && ($parsed['expr_type'] !== \PHPSQL\Expression\Type::SIMPLE_FUNCTION)) {
             return "";
         }
 
         if ($parsed['sub_tree'] === false) {
-            return $parsed['base_expr'] . "()";
+            if ($parsed['base_expr'] === 'AGAINST') {
+                return $parsed['base_expr'] . "";
+            } else {
+                return $parsed['base_expr'] . "()";
+            }
         }
 
         $sql = "";
@@ -416,7 +451,12 @@ class Creator {
 
             $sql .= ($this->isReserved($v) ? " " : ",");
         }
-        return $parsed['base_expr'] . "(" . substr($sql, 0, -1) . ")";
+        $sql = $parsed['base_expr'] . "(" . substr($sql, 0, -1) . ")";
+
+        if (isset($parsed['alias'])) {
+            $sql .= $this->processAlias($parsed['alias']);
+        }
+        return $sql;
     }
 
     protected function processSelectExpression($parsed) {
@@ -437,20 +477,25 @@ class Creator {
         return $sql;
     }
 
-    protected function processSubTree($parsed, $delim = " ") {
+    protected function processSubTree($parsed, $delim = " ")
+    {
         if ($parsed['sub_tree'] === '') {
             return "";
         }
         $sql = "";
         foreach ($parsed['sub_tree'] as $k => $v) {
             $len = strlen($sql);
+
             $sql .= $this->processFunction($v);
             $sql .= $this->processOperator($v);
             $sql .= $this->processConstant($v);
             $sql .= $this->processSubQuery($v);
+            $sql .= $this->processColRef($v); // @ADDED
             $sql .= $this->processSelectBracketExpression($v);
 
+
             if ($len == strlen($sql)) {
+
                 throw new \PHPSQL\Exception\UnableToCreateSQL('expression subtree', $k, $v, 'expr_type');
             }
 
