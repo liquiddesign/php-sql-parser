@@ -8,7 +8,7 @@ A Parser for mysql-ish queries that can represent a query as an array.
 # Goals:
 	1. A PSR-0 Compatible implementation
 	2. Improvements
-	3. Many fixes form MySQL
+	3. Many fixes for MySQL
 
 ## Usage
 
