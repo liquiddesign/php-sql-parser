@@ -2,6 +2,8 @@ PHP SQL Parser
 --------------
 
 A fork of https://github.com/soundintheory/php-sql-parser
+There were several issues in PHPSQLCreator and they are fixed now. Creator now support having
+clause and many more.
 
 A Parser for mysql-ish queries that can represent a query as an array.
 
