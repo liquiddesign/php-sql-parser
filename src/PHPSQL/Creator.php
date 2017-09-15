@@ -664,6 +664,14 @@ class Creator {
         return $parsed['base_expr'];
     }
 
+	protected function processMatchArguments($parsed)
+	{
+		if ($parsed['expr_type'] !== \PHPSQL\Expression\Type::MATCH_ARGUMENTS) {
+			return "";
+		}
+		return $parsed['base_expr'];
+	}
+
     protected function processInList($parsed) {
         if ($parsed['expr_type'] !== \PHPSQL\Expression\Type::IN_LIST) {
             return "";
