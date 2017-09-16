@@ -70,7 +70,10 @@ class Creator {
     }
 
     protected function processSelectStatement($parsed) {
-        $sql = $this->processSELECT($parsed['SELECT']) . " " . $this->processFROM($parsed['FROM']);
+	    $sql = $this->processSELECT($parsed['SELECT']);
+	    if (isset($parsed['FROM'])) {
+		    $sql .= " " . $this->processFROM($parsed['FROM']);
+	    }
         if (isset($parsed['WHERE'])) {
             $sql .= " " . $this->processWHERE($parsed['WHERE']);
         }
@@ -492,7 +495,7 @@ class Creator {
             $sql .= $this->processSubQuery($v);
             $sql .= $this->processColRef($v); // @ADDED
             $sql .= $this->processSelectBracketExpression($v);
-
+	        $sql .= $this->processMatchArguments($v); // @ADDED
 
             if ($len == strlen($sql)) {
 
