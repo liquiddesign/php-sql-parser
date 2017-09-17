@@ -11,8 +11,8 @@ A Parser for mysql-ish queries that can represent a query as an array.
 
 - fixed match against
 - implements match against in SELECT
-- fixes HAVING clause
-- fixes calling function in function in SELECT and WHERE
+- fixed HAVING clause
+- fixed calling function in function in SELECT and WHERE
 - some other minor fixes
 
 ## Usage

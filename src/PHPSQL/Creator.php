@@ -335,6 +335,7 @@ class Creator {
             $sql .= $this->processFunction($v);
             $sql .= $this->processWhereExpression($v);
             $sql .= $this->processWhereBracketExpression($v);
+	        $sql .= $this->processMatchArguments($v); // @ADDED
 
             if (strlen($sql) == $len) {
                 throw new \PHPSQL\Exception\UnableToCreateSQL('WHERE', $k, $v, 'expr_type');
@@ -359,6 +360,7 @@ class Creator {
             $sql .= $this->processFunction($v);
             $sql .= $this->processWhereExpression($v);
             $sql .= $this->processWhereBracketExpression($v);
+	        $sql .= $this->processMatchArguments($v); // @ADDED
 
             if ($len == strlen($sql)) {
                 throw new \PHPSQL\Exception\UnableToCreateSQL('WHERE expression subtree', $k, $v, 'expr_type');
