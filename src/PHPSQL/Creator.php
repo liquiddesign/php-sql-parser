@@ -433,30 +433,41 @@ class Creator {
             && ($parsed['expr_type'] !== \PHPSQL\Expression\Type::SIMPLE_FUNCTION)) {
             return "";
         }
-
+        bdump($parsed);
         if ($parsed['sub_tree'] === false) {
             if ($parsed['base_expr'] === 'AGAINST') {
                 return $parsed['base_expr'] . "";
-            } else {
-                return $parsed['base_expr'] . "()";
             }
+            else
+                return $parsed['base_expr'] . "()";
         }
 
         $sql = "";
+
+        $last = null;
         foreach ($parsed['sub_tree'] as $k => $v) {
             $len = strlen($sql);
+
+            if ($last !== null) {
+                $sql .= ($this->isReserved($last) || $last['expr_type'] === \PHPSQL\Expression\Type::OPERATOR || $this->isReserved($v) || $v['expr_type'] === \PHPSQL\Expression\Type::OPERATOR) ? " " : ",";
+            }
+
+            $sql .= $this->processOperator($v);
+
             $sql .= $this->processFunction($v);
             $sql .= $this->processConstant($v);
+
             $sql .= $this->processColRef($v);
             $sql .= $this->processReserved($v);
 
             if ($len == strlen($sql)) {
+
                 throw new \PHPSQL\Exception\UnableToCreateSQL('function subtree', $k, $v, 'expr_type');
             }
 
-            $sql .= ($this->isReserved($v) ? " " : ",");
+            $last = $v;
         }
-        $sql = $parsed['base_expr'] . "(" . substr($sql, 0, -1) . ")";
+        $sql = $parsed['base_expr'] . "(" . $sql . ")";
 
         if (isset($parsed['alias'])) {
             $sql .= $this->processAlias($parsed['alias']);
