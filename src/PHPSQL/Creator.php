@@ -433,7 +433,7 @@ class Creator {
             && ($parsed['expr_type'] !== \PHPSQL\Expression\Type::SIMPLE_FUNCTION)) {
             return "";
         }
-        bdump($parsed);
+        
         if ($parsed['sub_tree'] === false) {
             if ($parsed['base_expr'] === 'AGAINST') {
                 return $parsed['base_expr'] . "";
